@@ -55,13 +55,13 @@ namespace KEI
 			}
 		}
 
-		private static string[] excludedExperiments;
 
 		public void ModuleManagerPostLoad()
 		{
 			if (excludedExperiments != null)
 				return;
-			Debug.Log("ModuleManagerPostLoad");
+
+			Log.Info("ModuleManagerPostLoad");
 			List<string> expList = new List<string>();
 			ConfigNode[] excludedNode = GameDatabase.Instance.GetConfigNodes("KEI_EXCLUDED_EXPERIMENTS");
 			if (excludedNode != null)
@@ -76,12 +76,12 @@ namespace KEI
 			}
 			else
 			{
-				Debug.Log("Missing config file");
+				Log.Error("Missing config file");
 				excludedExperiments = expList.ToArray();
 			}
             foreach (var s in excludedExperiments)
             {
-                Debug.Log("Excluded experiment: " + s);
+                Log.Info("Excluded experiment: " + s);
             }
 		}
 
@@ -197,7 +197,7 @@ namespace KEI
 					{
 						if (ex.experimentID == null)
 						{
-							Log("part's " + part.name + " experimentID is null");
+							Log.Error("part's " + part.name + " experimentID is null");
 							continue;
 						}
 						// Remove experiments with empty ids, by [Kerbas-ad-astra](https://github.com/Kerbas-ad-astra)
@@ -364,9 +364,9 @@ namespace KEI
 			excludedManufacturers = File.ReadAllLines<KEI>("ExcludedManufacturers.lst");
 		}
 
-		private void Log(string message) {
-
-			Debug.Log("KEI debug: " + message);
-		}
+		//private void Log(string message) {
+        //
+		//	Debug.Log("KEI debug: " + message);
+		//}
 	}
 }
