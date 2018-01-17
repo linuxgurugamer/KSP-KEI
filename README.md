@@ -1,5 +1,5 @@
 # KSP-KEI
-##Kerbal Environmental Institute
+## Kerbal Environmental Institute
 
 Gather science from KSC in one click.
 
