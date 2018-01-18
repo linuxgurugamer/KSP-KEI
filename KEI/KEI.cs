@@ -148,7 +148,10 @@ namespace KEI
 
 		public void OnGUI()
 		{
-            toolbarControl.UseBlizzy(HighLogic.CurrentGame.Parameters.CustomParams<KEI_S>().useBlizzy);
+            if (toolbarControl != null)
+                toolbarControl.UseBlizzy(HighLogic.CurrentGame.Parameters.CustomParams<KEI_S>().useBlizzy);
+            else
+                Log.Info("toolbarControl is null in OnGUI");
 
             if (!isActive) return;
 			if (mainWindowVisible) {
@@ -324,7 +327,6 @@ namespace KEI
             {
                 toolbarControl = gameObject.AddComponent<ToolbarControl>();
                 toolbarControl.AddToAllToolbars(ShowMainWindow, HideMainWindow,
-
                             ApplicationLauncher.AppScenes.SPACECENTER,
                             "KEI",
                             "KEIButton",

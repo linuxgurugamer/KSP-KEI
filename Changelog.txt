@@ -1,3 +1,6 @@
+1.2.6
+	Fixed harmless nullref at the space center
+
 1.2.5
 	Added code to properly read files in PluginData
 	Added code to support ToolbarControl, gives option for Blizzy toolbar if desired
