@@ -1,7 +1,14 @@
+1.2.5
+	Added code to properly read files in PluginData
+	Added code to support ToolbarControl, gives option for Blizzy toolbar if desired
+	Note, this makes the ToolbarControl a hard dependency
+	Added Settings page to control toolbar option
+
 1.2.4
 	Adoption by Linuxugurugamer
 	Added Log class, changed all Debug.Log to Log.Info and Log.Error
 	Added build scripts
+	Moved dll into PluginData folder
 
 1.2.3
 	Recompile for KSP 1.3.1

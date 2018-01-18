@@ -5,6 +5,8 @@ using UnityEngine;
 using KSP.UI.Screens;
 using KSP.IO;
 
+using ToolbarControl_NS;
+
 namespace KEI
 {
 	[KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
@@ -17,7 +19,15 @@ namespace KEI
 			public bool done;
 		}
 
-		public static KEI Instance;
+        public static readonly string ROOT_PATH = KSPUtil.ApplicationRootPath;
+        private static readonly string CONFIG_BASE_FOLDER = ROOT_PATH + "GameData/";
+
+        private static string KEI_BASE_FOLDER = CONFIG_BASE_FOLDER + "KEI/";
+        private static string KEI_PLUGINDATA = KEI_BASE_FOLDER + "PluginData/";
+
+
+
+        public static KEI Instance;
 		private bool isActive;
 
 		private List<AvailableExperiment> availableExperiments;
@@ -28,7 +38,7 @@ namespace KEI
 		private string[] excludedManufacturers;
 
 		//GUI related members
-		private ApplicationLauncherButton appLauncherButton;
+		//private ApplicationLauncherButton appLauncherButton;
 		private int mainWindowId;
 		private Rect mainWindowRect;
 		private bool mainWindowVisible;
@@ -111,28 +121,36 @@ namespace KEI
 		{
 			if (isActive)
 			{
-				GameEvents.onGUIApplicationLauncherReady.Remove(OnAppLauncherReady);
+                toolbarControl.OnDestroy();
+                Destroy(toolbarControl);
+
+                GameEvents.onGUIApplicationLauncherReady.Remove(OnAppLauncherReady);
 				GameEvents.OnKSCFacilityUpgraded.Remove(OnKSCFacilityUpgraded);
 				GameEvents.onGUIRnDComplexSpawn.Remove(SwitchOff);
 				GameEvents.onGUIAstronautComplexSpawn.Remove(SwitchOff);
-				if (appLauncherButton != null)
-					ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
+				//if (appLauncherButton != null)
+				//	ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
 			}
 		}
 
 		private void OnKSCFacilityUpgraded(Upgradeables.UpgradeableFacility facility, int level)
 		{
-			appLauncherButton.SetFalse();
+            Log.Info("OnKSCFacilityUpgraded");
+            toolbarControl.SetFalse();
+			//appLauncherButton.SetFalse();
 		}
 
 		private void SwitchOff()
 		{
-			appLauncherButton.SetFalse();
+            toolbarControl.SetFalse();
+            //appLauncherButton.SetFalse();
 		}
 
 		public void OnGUI()
 		{
-			if (!isActive) return;
+            toolbarControl.UseBlizzy(HighLogic.CurrentGame.Parameters.CustomParams<KEI_S>().useBlizzy);
+
+            if (!isActive) return;
 			if (mainWindowVisible) {
 
 				mainWindowRect = GUILayout.Window(
@@ -264,14 +282,19 @@ namespace KEI
 		{
 			StringBuilder msg = new StringBuilder();
 			string[] template;
-			if (File.Exists<KEI>(experiment.id + ".msg"))
+            if (System.IO.File.Exists(KEI_PLUGINDATA + experiment.id + ".msg"))
+			//if (File.Exists<KEI>(experiment.id + ".msg"))
 			{
-				template = File.ReadAllLines<KEI>(experiment.id + ".msg");
-			}
-			else
+                template = System.IO.File.ReadAllLines(KEI_PLUGINDATA + experiment.id + ".msg");
+                //template = File.ReadAllLines<KEI>(experiment.id + ".msg");
+
+            }
+            else
 			{
-				template = File.ReadAllLines<KEI>("unknownExperiment.msg");
-				msg.AppendLine("TOP SECRET!");
+                //template = File.ReadAllLines<KEI>("unknownExperiment.msg");
+                template = System.IO.File.ReadAllLines(KEI_PLUGINDATA + "unknownExperiment.msg");
+
+                msg.AppendLine("TOP SECRET!");
 				msg.AppendLine("Project " + experiment.experimentTitle);
 				msg.AppendLine("Eat this report after reading");
 				msg.AppendLine("And drink some coffee");
@@ -293,9 +316,27 @@ namespace KEI
 			MessageSystem.Instance.AddMessage(message);
 		}
 
-		//GUI related functions
-		private void OnAppLauncherReady() {
-			if (appLauncherButton == null)
+        ToolbarControl toolbarControl;
+        //GUI related functions
+        private void OnAppLauncherReady()
+        {
+            if (toolbarControl == null)
+            {
+                toolbarControl = gameObject.AddComponent<ToolbarControl>();
+                toolbarControl.AddToAllToolbars(ShowMainWindow, HideMainWindow,
+
+                            ApplicationLauncher.AppScenes.SPACECENTER,
+                            "KEI",
+                            "KEIButton",
+                            "KEI/Textures/kei-icon_32",
+                            "KEI/Textures/kei-icon_24",
+    
+                            "KEI"
+                    );
+                toolbarControl.UseBlizzy(HighLogic.CurrentGame.Parameters.CustomParams<KEI_S>().useBlizzy);
+            }
+#if false
+            if (appLauncherButton == null)
 			{
 				appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
 					ShowMainWindow,
@@ -305,9 +346,10 @@ namespace KEI
 					null,
 					null,
 					ApplicationLauncher.AppScenes.SPACECENTER,
-					GameDatabase.Instance.GetTexture("KEI/Textures/kei-icon", false)
+					GameDatabase.Instance.GetTexture("KEI/Textures/kei-icon_32", false)
 				);
 			}
+#endif
 		}
 
 		private void ShowMainWindow() {
@@ -354,19 +396,26 @@ namespace KEI
 				GUILayout.Label("Nothing to do here, go research something.");
 			}
 			if (GUILayout.Button("Close", GUILayout.Height(25)))
-				appLauncherButton.SetFalse();
+                toolbarControl.SetFalse();
+
+            // appLauncherButton.SetFalse();
+
 			GUILayout.EndVertical();
 			GUI.DragWindow();
 		}
 
 		private void LoadExceptions() {
-			excludedExperiments = File.ReadAllLines<KEI>("ExcludedExperiments.lst");
-			excludedManufacturers = File.ReadAllLines<KEI>("ExcludedManufacturers.lst");
-		}
+			//excludedExperiments = File.ReadAllLines<KEI>("ExcludedExperiments.lst");
+			//excludedManufacturers = File.ReadAllLines<KEI>("ExcludedManufacturers.lst");
 
-		//private void Log(string message) {
+            excludedExperiments = System.IO.File.ReadAllLines(KEI_PLUGINDATA + "ExcludedExperiments.lst");
+            excludedManufacturers = System.IO.File.ReadAllLines(KEI_PLUGINDATA + "ExcludedManufacturers.lst");
+
+        }
+
+        //private void Log(string message) {
         //
-		//	Debug.Log("KEI debug: " + message);
-		//}
-	}
+        //	Debug.Log("KEI debug: " + message);
+        //}
+    }
 }
