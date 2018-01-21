@@ -97,8 +97,10 @@ namespace KEI
 
 		public void Start()
 		{
-			if (isActive)
-			{
+            if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER || HighLogic.CurrentGame.Mode == Game.Modes.SCIENCE_SANDBOX)
+            {
+                isActive = true;
+             
 				HomeBody = FlightGlobals.GetHomeBody();
 				mainWindowId = GUIUtility.GetControlID(FocusType.Passive);
 				mainWindowRect.width = 400;
@@ -116,22 +118,23 @@ namespace KEI
 				ModuleManagerPostLoad();
 			}
 		}
-
+        bool flag = false;
 		void OnDestroy()
 		{
-			if (isActive)
+            if (isActive)
 			{
-                toolbarControl.OnDestroy();
-                Destroy(toolbarControl);
-
                 GameEvents.onGUIApplicationLauncherReady.Remove(OnAppLauncherReady);
 				GameEvents.OnKSCFacilityUpgraded.Remove(OnKSCFacilityUpgraded);
 				GameEvents.onGUIRnDComplexSpawn.Remove(SwitchOff);
 				GameEvents.onGUIAstronautComplexSpawn.Remove(SwitchOff);
-				//if (appLauncherButton != null)
-				//	ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
-			}
-		}
+                //if (appLauncherButton != null)
+                //	ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
+                flag = true;
+                toolbarControl.OnDestroy();
+                Destroy(toolbarControl);
+                toolbarControl = null;
+            }
+        }
 
 		private void OnKSCFacilityUpgraded(Upgradeables.UpgradeableFacility facility, int level)
 		{

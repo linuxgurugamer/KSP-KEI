@@ -1,3 +1,6 @@
+1.2.7
+	Fixed multiple buttons issue.  Need to update ToolbarController as well
+
 1.2.6
 	Fixed harmless nullref at the space center
 
