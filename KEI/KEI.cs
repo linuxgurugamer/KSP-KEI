@@ -6,6 +6,7 @@ using KSP.UI.Screens;
 using KSP.IO;
 
 using ToolbarControl_NS;
+using ClickThroughFix;
 
 namespace KEI
 {
@@ -118,7 +119,7 @@ namespace KEI
 				ModuleManagerPostLoad();
 			}
 		}
-        bool flag = false;
+        //bool flag = false;
 		void OnDestroy()
 		{
             if (isActive)
@@ -129,7 +130,7 @@ namespace KEI
 				GameEvents.onGUIAstronautComplexSpawn.Remove(SwitchOff);
                 //if (appLauncherButton != null)
                 //	ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
-                flag = true;
+                //flag = true;
                 toolbarControl.OnDestroy();
                 Destroy(toolbarControl);
                 toolbarControl = null;
@@ -159,7 +160,7 @@ namespace KEI
             if (!isActive) return;
 			if (mainWindowVisible) {
 
-				mainWindowRect = GUILayout.Window(
+                mainWindowRect = ClickThruBlocker.GUILayoutWindow(
 					mainWindowId,
 					mainWindowRect,
 					RenderMainWindow,
