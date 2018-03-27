@@ -329,15 +329,16 @@ namespace KEI
         {
             if (toolbarControl == null)
             {
+                string abbr = HomeBody.name.Substring(0, 1) + "EI";
                 toolbarControl = gameObject.AddComponent<ToolbarControl>();
                 toolbarControl.AddToAllToolbars(ShowMainWindow, HideMainWindow,
                             ApplicationLauncher.AppScenes.SPACECENTER,
-                            "KEI",
+                            "KEI" + "_NS",
                             "KEIButton",
                             "KEI/Textures/kei-icon_32",
                             "KEI/Textures/kei-icon_24",
-    
-                            "KEI"
+
+                            abbr
                     );
                 toolbarControl.UseBlizzy(HighLogic.CurrentGame.Parameters.CustomParams<KEI_S>().useBlizzy);
             }

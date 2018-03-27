@@ -1,3 +1,6 @@
+1.2.8.1
+	updated code to change first letter of modname based on homeworld
+
 1.2.8
 	Updated for 1.4.1
 	Added support for the ClickThroughBlocker
