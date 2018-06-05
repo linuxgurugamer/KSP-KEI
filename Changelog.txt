@@ -5,6 +5,7 @@
 	(code was already there to read experiments from cfg file)
 	Updated code to use latest ToolbarController
 	Removed settings page since it only was there for the Blizzy Toolbar, now handled by ToolbarController
+	Added dependency checking
 
 1.2.8.1
 	updated code to change first letter of modname based on homeworld
