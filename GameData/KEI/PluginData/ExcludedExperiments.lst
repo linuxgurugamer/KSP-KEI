@@ -1,3 +1,5 @@
+Not used anymore, kept for historical reasons
+
 SEP_SolarwindSpectrum
 SEP_CCIDscan
 error
@@ -27,3 +29,5 @@ WBISoilAnalysis
 WBIMetallurgyAnalysis
 WBIChemicalAnalysis
 WBIExtractionAnalysis
+GravioliumStudy
+wbiSaucerResearchExperiment

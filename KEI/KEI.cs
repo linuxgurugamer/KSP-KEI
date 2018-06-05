@@ -10,7 +10,16 @@ using ClickThroughFix;
 
 namespace KEI
 {
-	[KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
+    [KSPAddon(KSPAddon.Startup.MainMenu, true)]
+    public class RegisterToolbar : MonoBehaviour
+    {
+        void Start()
+        {
+            ToolbarControl.RegisterMod(KEI.MODID, KEI.MODNAME);
+        }
+    }
+
+    [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
 	class KEI : MonoBehaviour
 	{
 		private class AvailableExperiment
@@ -35,8 +44,8 @@ namespace KEI
 		private List<ScienceExperiment> unlockedExperiments;
 		private List<string> kscBiomes;
 		private CelestialBody HomeBody;
-		private string[] excludedExperiments;
-		private string[] excludedManufacturers;
+		private string[] excludedExperiments = null;
+		private string[] excludedManufacturers = null;
 
 		//GUI related members
 		//private ApplicationLauncherButton appLauncherButton;
@@ -69,32 +78,49 @@ namespace KEI
 
 		public void ModuleManagerPostLoad()
 		{
-			if (excludedExperiments != null)
-				return;
-
-			Log.Info("ModuleManagerPostLoad");
-			List<string> expList = new List<string>();
-			ConfigNode[] excludedNode = GameDatabase.Instance.GetConfigNodes("KEI_EXCLUDED_EXPERIMENTS");
-			if (excludedNode != null)
-			{
-				int len1 = excludedNode.Length;
-				for (int i = 0; i < len1; i++)
-				{
-					string[] types = excludedNode[i].GetValues("experiment");
-					expList.AddRange(types);
-				}
-				excludedExperiments = expList.ToArray();
-			}
-			else
-			{
-				Log.Error("Missing config file");
-				excludedExperiments = expList.ToArray();
-			}
-            foreach (var s in excludedExperiments)
+            if (excludedExperiments == null)
             {
-                Log.Info("Excluded experiment: " + s);
+                List<string> expList = new List<string>();
+                ConfigNode[] excludedNode = GameDatabase.Instance.GetConfigNodes("KEI_EXCLUDED_EXPERIMENTS");
+ 
+                if (excludedNode != null)
+                {
+                    for (int i = excludedNode.Length - 1;  i >= 0; i--)
+                    {
+                        string[] types = excludedNode[i].GetValues("experiment");
+                        expList.AddRange(types);
+                    }                    
+                }
+                else
+                    Log.Error("Missing config file");                   
+               
+                excludedExperiments = expList.ToArray();
+
+                foreach (var s in excludedExperiments)
+                    Log.Info("Excluded experiment: " + s);
+                
             }
-		}
+            if (excludedManufacturers == null)
+            {
+                List<string> expList = new List<string>();
+                ConfigNode[] excludedNode = GameDatabase.Instance.GetConfigNodes("KEI_EXCLUDED_MANUFACTURERS");
+                if (excludedNode != null)
+                {
+                    for (int i = excludedNode.Length - 1; i >= 0; i--)
+                    {
+                        string[] types = excludedNode[i].GetValues("manufacturer");
+                        expList.AddRange(types);
+                    }
+                }
+                else
+                    Log.Error("Missing config file");
+
+                excludedManufacturers = expList.ToArray();
+
+                foreach (var s in excludedManufacturers)
+                    Log.Info("Excluded manufacturer: " + s);                
+            }
+        }
 
 		public void Start()
 		{
@@ -108,8 +134,6 @@ namespace KEI
 				mainWindowRect.x = (Screen.width - 400) / 2;
 				mainWindowRect.y = Screen.height / 4;
 				mainWindowScrollPosition.Set(0, 0);
-
-				LoadExceptions ();
 
 				GameEvents.onGUIApplicationLauncherReady.Add(OnAppLauncherReady);
 				GameEvents.OnKSCFacilityUpgraded.Add(OnKSCFacilityUpgraded);
@@ -152,11 +176,6 @@ namespace KEI
 
 		public void OnGUI()
 		{
-            if (toolbarControl != null)
-                toolbarControl.UseBlizzy(HighLogic.CurrentGame.Parameters.CustomParams<KEI_S>().useBlizzy);
-            else
-                Log.Info("toolbarControl is null in OnGUI");
-
             if (!isActive) return;
 			if (mainWindowVisible) {
 
@@ -324,6 +343,8 @@ namespace KEI
 		}
 
         ToolbarControl toolbarControl;
+        internal const string MODID = "KEI_NS";
+        internal const string MODNAME = "Kerbin Environmental Institute";
         //GUI related functions
         private void OnAppLauncherReady()
         {
@@ -333,30 +354,14 @@ namespace KEI
                 toolbarControl = gameObject.AddComponent<ToolbarControl>();
                 toolbarControl.AddToAllToolbars(ShowMainWindow, HideMainWindow,
                             ApplicationLauncher.AppScenes.SPACECENTER,
-                            "KEI" + "_NS",
+                            MODID,
                             "KEIButton",
                             "KEI/Textures/kei-icon_32",
                             "KEI/Textures/kei-icon_24",
 
                             abbr
                     );
-                toolbarControl.UseBlizzy(HighLogic.CurrentGame.Parameters.CustomParams<KEI_S>().useBlizzy);
             }
-#if false
-            if (appLauncherButton == null)
-			{
-				appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
-					ShowMainWindow,
-					HideMainWindow,
-					null,
-					null,
-					null,
-					null,
-					ApplicationLauncher.AppScenes.SPACECENTER,
-					GameDatabase.Instance.GetTexture("KEI/Textures/kei-icon_32", false)
-				);
-			}
-#endif
 		}
 
 		private void ShowMainWindow() {
@@ -410,19 +415,5 @@ namespace KEI
 			GUILayout.EndVertical();
 			GUI.DragWindow();
 		}
-
-		private void LoadExceptions() {
-			//excludedExperiments = File.ReadAllLines<KEI>("ExcludedExperiments.lst");
-			//excludedManufacturers = File.ReadAllLines<KEI>("ExcludedManufacturers.lst");
-
-            excludedExperiments = System.IO.File.ReadAllLines(KEI_PLUGINDATA + "ExcludedExperiments.lst");
-            excludedManufacturers = System.IO.File.ReadAllLines(KEI_PLUGINDATA + "ExcludedManufacturers.lst");
-
-        }
-
-        //private void Log(string message) {
-        //
-        //	Debug.Log("KEI debug: " + message);
-        //}
     }
 }
