@@ -1,3 +1,9 @@
+1.2.9.2
+	Updated excluded experiments
+
+1.2.9.1
+	Made sure experiments and manufacturers aren't duplicated in the lists
+
 1.2.9
 	Removed code which read excluded manufacturers from text file
 	Removed code which read excluded experiments from text file

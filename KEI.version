@@ -1,32 +1,30 @@
 {
-    "NAME"     : "Kerbin Environmental Institute",
-    "URL"      : "https://raw.githubusercontent.com/linuxgurugamer/KSP-KEI/master/KEI.version",
-	"DOWNLOAD": "https://github.com/LinuxGuruGamer/KSP-KEI/releases",
-    "GITHUB" :
-    {
-        "USERNAME" : "linuxgurugamer",
-        "REPOSITORY" : "KSP-KEI"
+    "NAME": "Kerbin Environmental Institute",
+    "URL": "https://raw.githubusercontent.com/linuxgurugamer/KSP-KEI/master/KEI.version",
+    "DOWNLOAD": "https://github.com/LinuxGuruGamer/KSP-KEI/releases",
+    "GITHUB": {
+        "USERNAME": "linuxgurugamer",
+        "REPOSITORY": "KSP-KEI"
     },
-    "VERSION" :
-    {
-        "MAJOR" : 1,
-        "MINOR" : 2,
-        "PATCH" : 9,
-		"BUILD" : 0
+    "VERSION": {
+        "MAJOR": 1,
+        "MINOR": 2,
+        "PATCH": 9,
+        "BUILD": 2
     },
-  "KSP_VERSION": {
-    "MAJOR": 1,
-    "MINOR": 4,
-    "PATCH": 1
-  },
-  "KSP_VERSION_MIN": {
-    "MAJOR": 1,
-    "MINOR": 4,
-    "PATCH": 1
-  },
-  "KSP_VERSION_MAX": {
-    "MAJOR": 1,
-    "MINOR": 4,
-    "PATCH": 99
-  }
+    "KSP_VERSION": {
+        "MAJOR": 1,
+        "MINOR": 4,
+        "PATCH": 1
+    },
+    "KSP_VERSION_MIN": {
+        "MAJOR": 1,
+        "MINOR": 4,
+        "PATCH": 1
+    },
+    "KSP_VERSION_MAX": {
+        "MAJOR": 1,
+        "MINOR": 4,
+        "PATCH": 99
+    }
 }

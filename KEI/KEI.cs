@@ -94,7 +94,7 @@ namespace KEI
                 else
                     Log.Error("Missing config file");                   
                
-                excludedExperiments = expList.ToArray();
+                excludedExperiments = expList.Distinct().ToArray();
 
                 foreach (var s in excludedExperiments)
                     Log.Info("Excluded experiment: " + s);
@@ -115,7 +115,7 @@ namespace KEI
                 else
                     Log.Error("Missing config file");
 
-                excludedManufacturers = expList.ToArray();
+                excludedManufacturers = expList.Distinct().ToArray();
 
                 foreach (var s in excludedManufacturers)
                     Log.Info("Excluded manufacturer: " + s);                
