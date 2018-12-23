@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Text;
 using System.Linq;
 using System.Collections.Generic;
@@ -257,51 +259,72 @@ namespace KEI
 
 		private void GainScience(List<ScienceExperiment> experiments, bool analyze)
 		{
-			// Let's get science objects in all KSC biomes
-			foreach (var experiment in experiments.Where(x => x.IsAvailableWhile(ExperimentSituations.SrfLanded, HomeBody)))
-			{
-				float gain = 0.0f;
-				foreach (var biome in kscBiomes)
-				{
-					ScienceSubject subject = ResearchAndDevelopment.GetExperimentSubject(
-						experiment,
-						ExperimentSituations.SrfLanded,
-						HomeBody,
-						biome,
-						null
-					);
-					if (subject.science < subject.scienceCap)
-					{
-						if (analyze)
-						{
-							gain += (subject.scienceCap - subject.science) * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
-						}
-						else {
-							// We want to get full science reward
-							subject.subjectValue = 1.0f;
+            // Let's get science objects in all KSC biomes
+            try
+            {
+                foreach (var experiment in experiments.Where(x => x.IsAvailableWhile(ExperimentSituations.SrfLanded, HomeBody)))
+                {
+                    float gain = 0.0f;
+                    try
+                    {
+                        foreach (var biome in kscBiomes)
+                        {
+                            try
+                            {
+                                ScienceSubject subject = ResearchAndDevelopment.GetExperimentSubject(
+                                    experiment,
+                                    ExperimentSituations.SrfLanded,
+                                    HomeBody,
+                                    biome,
+                                    null
+                                );
+                                if (subject.science < subject.scienceCap)
+                                {
+                                    if (analyze)
+                                    {
+                                        gain += (subject.scienceCap - subject.science) * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
+                                    }
+                                    else
+                                    {
+                                        // We want to get full science reward
+                                        subject.subjectValue = 1.0f;
 
-							gain += ResearchAndDevelopment.Instance.SubmitScienceData(
-								subject.scienceCap * subject.dataScale,
-								subject
-							);
-						}
-					}
-				}
-				if (gain >= 0.01f)
-				{
-					if (analyze)
-						availableExperiments.Add(
-							new AvailableExperiment
-							{
-								experiment = experiment,
-								possibleGain = gain,
-								done = false
-							}
-						);
-					else
-						Report(experiment, gain);
-				}
-			}
+                                        gain += ResearchAndDevelopment.Instance.SubmitScienceData(
+                                            subject.scienceCap * subject.dataScale,
+                                            subject
+                                        );
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error("Exception found getting subject, message: " + ex.Message);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Exception found getting next biome, message: " + ex.Message);
+                    }
+                    if (gain >= 0.01f)
+                    {
+                        if (analyze)
+                            availableExperiments.Add(
+                                new AvailableExperiment
+                                {
+                                    experiment = experiment,
+                                    possibleGain = gain,
+                                    done = false
+                                }
+                            );
+                        else
+                            Report(experiment, gain);
+                    }
+                }
+            } catch (Exception ex)
+            {
+                Log.Error("Exception found getting next experiment, message: " + ex.Message);
+            }
 		}
 
 		private void Report(ScienceExperiment experiment, float gain)
