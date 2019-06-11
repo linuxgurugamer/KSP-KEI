@@ -1,30 +1,25 @@
 {
-    "NAME": "Kerbin Environmental Institute",
-    "URL": "http://ksp.spacetux.net/avc/KEI",
-    "DOWNLOAD": "https://github.com/LinuxGuruGamer/KSP-KEI/releases",
-    "GITHUB": {
-        "USERNAME": "linuxgurugamer",
-        "REPOSITORY": "KSP-KEI"
-    },
-    "VERSION": {
-        "MAJOR": 1,
-        "MINOR": 2,
-        "PATCH": 9,
-        "BUILD": 4
-    },
-    "KSP_VERSION": {
-        "MAJOR": 1,
-        "MINOR": 5,
-        "PATCH": 1
-    },
-    "KSP_VERSION_MIN": {
-        "MAJOR": 1,
-        "MINOR": 5,
-        "PATCH": 1
-    },
-    "KSP_VERSION_MAX": {
-        "MAJOR": 1,
-        "MINOR": 5,
-        "PATCH": 99
-    }
+  "NAME": "Kerbin Environmental Institute",
+  "URL": "http://ksp.spacetux.net/avc/KEI",
+  "DOWNLOAD": "https://github.com/LinuxGuruGamer/KSP-KEI/releases",
+  "GITHUB": {
+    "USERNAME": "linuxgurugamer",
+    "REPOSITORY": "KSP-KEI"
+  },
+  "VERSION": {
+    "MAJOR": 1,
+    "MINOR": 2,
+    "PATCH": 9,
+    "BUILD": 6
+  },
+  "KSP_VERSION": {
+    "MAJOR": 1,
+    "MINOR": 5,
+    "PATCH": 1
+  },
+  "KSP_VERSION_MIN": {
+    "MAJOR": 1,
+    "MINOR": 5,
+    "PATCH": 1
+  }
 }
