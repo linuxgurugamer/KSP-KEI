@@ -238,8 +238,8 @@ namespace KEI
 				// Part has some modules
 				if (part.partPrefab.Modules != null)
 				{
-					// Check science modules
-					foreach (ModuleScienceExperiment ex in part.partPrefab.Modules.OfType<ModuleScienceExperiment>())
+                    // Check science modules
+                    foreach (ModuleScienceExperiment ex in part.partPrefab.Modules.OfType<ModuleScienceExperiment>())
 					{
 						if (ex.experimentID == null)
 						{
@@ -262,7 +262,7 @@ namespace KEI
             // Let's get science objects in all KSC biomes
             try
             {
-                foreach (var experiment in experiments.Where(x => x.IsAvailableWhile(ExperimentSituations.SrfLanded, HomeBody)))
+                foreach (ScienceExperiment experiment in experiments.Where(x => x.IsAvailableWhile(ExperimentSituations.SrfLanded, HomeBody)))
                 {
                     float gain = 0.0f;
                     try
