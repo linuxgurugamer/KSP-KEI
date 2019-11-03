@@ -1,4 +1,9 @@
+ChangeLog
+
 1.2.10
+	Updated for KSP 1.8
+
+1.2.9.10
 	Added InstallChecker
 	Updaed AssemblyVersion.tt
 
