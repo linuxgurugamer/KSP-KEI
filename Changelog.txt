@@ -1,5 +1,8 @@
 ChangeLog
 
+1.2.10.1
+	Fixed initialization of vars
+
 1.2.10
 	Updated for KSP 1.8
 
