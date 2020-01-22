@@ -231,9 +231,9 @@ namespace KEI
             // EVA Reports available from the beginning
             unlockedExperiments.Add(ResearchAndDevelopment.GetExperiment("evaReport"));
 
-            // To take surface samples from other worlds you need to upgrade Astronaut Complex and R&D
-            // But to take surface samples from home you need to only upgrade R&D
-            if (ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.ResearchAndDevelopment) > 0.0)
+            // Don't check RnD level to determine if surface samples are available, in case another mod messes with the Facility Levels.
+            //Instead just check the experiment is available directly.
+            if (SResearchAndDevelopment.GetExperiment("surfaceSample").IsUnlocked())
                 unlockedExperiments.Add(ResearchAndDevelopment.GetExperiment("surfaceSample"));
 
             foreach
