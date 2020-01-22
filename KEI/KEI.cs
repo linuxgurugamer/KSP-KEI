@@ -233,7 +233,7 @@ namespace KEI
 
             // Don't check RnD level to determine if surface samples are available, in case another mod messes with the Facility Levels.
             //Instead just check the experiment is available directly.
-            if (SResearchAndDevelopment.GetExperiment("surfaceSample").IsUnlocked())
+            if (ResearchAndDevelopment.GetExperiment("surfaceSample").IsUnlocked())
                 unlockedExperiments.Add(ResearchAndDevelopment.GetExperiment("surfaceSample"));
 
             foreach
