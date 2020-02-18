@@ -1,5 +1,9 @@
 ChangeLog
 
+1.2.10.2
+	Thanks to @severedsolo for this:
+		Change surface sample availability to use IsUnlocked instead of the facility upgrade level
+
 1.2.10.1
 	Fixed initialization of vars
 
