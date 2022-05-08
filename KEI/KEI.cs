@@ -1,4 +1,6 @@
+#if false
 using System;
+using System.Collections;
 using System.IO;
 using System.Text;
 using System.Linq;
@@ -10,70 +12,126 @@ using KSP.IO;
 using ToolbarControl_NS;
 using ClickThroughFix;
 
+using static KEI.RegisterToolbar;
+
 namespace KEI
 {
-    [KSPAddon(KSPAddon.Startup.MainMenu, true)]
-    public class RegisterToolbar : MonoBehaviour
-    {
-        void Start()
-        {
-            ToolbarControl.RegisterMod(KEI.MODID, KEI.MODNAME);
-        }
-    }
 
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     class KEI : MonoBehaviour
     {
-        private class AvailableExperiment
+        internal static KEI Instance;
+
+        internal ToolbarControl toolbarControl;
+        internal const string MODID = "KEI_NS";
+        internal const string MODNAME = "Kerbin Environmental Institute";
+        private CelestialBody HomeBody;
+
+        void Awake()
         {
-            public ScienceExperiment experiment;
-            public float possibleGain;
-            public bool done;
+            Instance = this;
         }
 
-        public static string ROOT_PATH;
-        private static string CONFIG_BASE_FOLDER;
+        void Start()
+        {
+            if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER || HighLogic.CurrentGame.Mode == Game.Modes.SCIENCE_SANDBOX)
+            {
+                InitializeToolbarControl();
+                GameEvents.OnKSCFacilityUpgraded.Add(OnKSCFacilityUpgraded);
+                GameEvents.onGUIRnDComplexSpawn.Add(SwitchOff);
+                GameEvents.onGUIAstronautComplexSpawn.Add(SwitchOff);
+                HomeBody = FlightGlobals.GetHomeBody();
+            }
+        }
 
-        private static string KEI_BASE_FOLDER;
-        private static string KEI_PLUGINDATA;
+        internal void InitializeToolbarControl()
+        {
+            if (HighLogic.CurrentGame.Parameters.CustomParams<KEI_Settings>().fullMode)
+            {
+                if (toolbarControl == null)
+                {
+                    string abbr = HomeBody.name.Substring(0, 1) + "EI";
+                    toolbarControl = gameObject.AddComponent<ToolbarControl>();
+                    toolbarControl.AddToAllToolbars(ShowMainWindow, HideMainWindow,
+                                ApplicationLauncher.AppScenes.SPACECENTER,
+                                MODID,
+                                "KEIButton",
+                                "KEI/Textures/kei-icon_32",
+                                "KEI/Textures/kei-icon_24",
 
+                                abbr
+                        );
+                }
+            }
+            else
+            {
+                if (toolbarControl != null)
+                {
+                    toolbarControl.OnDestroy();
+                    Destroy(toolbarControl);
+                    toolbarControl = null;
+                }
+            }
+        }
 
+        private void SwitchOff()
+        {
+            toolbarControl.SetFalse();
+        }
 
-        public static KEI Instance;
+        GameObject myplayer = null;
+        private void ShowMainWindow()
+        {
+            myplayer = new GameObject("KEIPlayer");
+            myplayer.AddComponent<KEI_2>();
+        }
+
+        private void HideMainWindow()
+        {
+            Destroy(myplayer);
+        }
+
+        private void OnKSCFacilityUpgraded(Upgradeables.UpgradeableFacility facility, int level)
+        {
+            toolbarControl.SetFalse();
+            KEI_2.Instance.CheckMode();
+        }
+
+        void OnDestroy()
+        {
+            GameEvents.OnKSCFacilityUpgraded.Remove(OnKSCFacilityUpgraded);
+            GameEvents.onGUIRnDComplexSpawn.Remove(SwitchOff);
+            GameEvents.onGUIAstronautComplexSpawn.Remove(SwitchOff);
+            Instance = null;
+        }
+
+    }
+
+    class KEI_2 : MonoBehaviour
+    {
+        internal static KEI_2 Instance;
+
         private bool isActive;
 
         private List<AvailableExperiment> availableExperiments;
         private List<ScienceExperiment> unlockedExperiments;
+
         private List<string> kscBiomes;
         private CelestialBody HomeBody;
         private string[] excludedExperiments = null;
         private string[] excludedManufacturers = null;
 
         //GUI related members
-        //private ApplicationLauncherButton appLauncherButton;
         private int mainWindowId;
         private Rect mainWindowRect;
-        private bool mainWindowVisible;
         private Vector2 mainWindowScrollPosition;
 
         //Public procedures
         public void Awake()
         {
-            if (Instance != null)
-            {
-                Destroy(this);
-                return;
-            }
-            ROOT_PATH = KSPUtil.ApplicationRootPath;
-            CONFIG_BASE_FOLDER = ROOT_PATH + "GameData/";
-
-            KEI_BASE_FOLDER = CONFIG_BASE_FOLDER + "KEI/";
-            KEI_PLUGINDATA = KEI_BASE_FOLDER + "PluginData/";
-
-
             Instance = this;
             isActive = false;
-            if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER || HighLogic.CurrentGame.Mode == Game.Modes.SCIENCE_SANDBOX)
+            //if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER || HighLogic.CurrentGame.Mode == Game.Modes.SCIENCE_SANDBOX)
             {
                 isActive = true;
                 availableExperiments = new List<AvailableExperiment>();
@@ -81,7 +139,6 @@ namespace KEI
                 kscBiomes = new List<string>();
                 mainWindowRect = new Rect();
                 mainWindowScrollPosition = new Vector2();
-                mainWindowVisible = false;
             }
         }
 
@@ -134,8 +191,6 @@ namespace KEI
 
         public void Start()
         {
-            if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER || HighLogic.CurrentGame.Mode == Game.Modes.SCIENCE_SANDBOX)
-            {
                 isActive = true;
 
                 HomeBody = FlightGlobals.GetHomeBody();
@@ -145,60 +200,62 @@ namespace KEI
                 mainWindowRect.y = Screen.height / 4;
                 mainWindowScrollPosition.Set(0, 0);
 
-                GameEvents.onGUIApplicationLauncherReady.Add(OnAppLauncherReady);
                 GameEvents.OnKSCFacilityUpgraded.Add(OnKSCFacilityUpgraded);
-                GameEvents.onGUIRnDComplexSpawn.Add(SwitchOff);
-                GameEvents.onGUIAstronautComplexSpawn.Add(SwitchOff);
 
                 ModuleManagerPostLoad();
-            }
+                StartCoroutine(DelayCheckMode());
+
+            KEI_2.Instance.UpdateScienceInfo();
         }
-        //bool flag = false;
+
+        IEnumerator DelayCheckMode()
+        {
+            //yield return new WaitForSeconds(2);
+            CheckMode();
+            yield return null;
+        }
+
         void OnDestroy()
         {
-            if (isActive)
-            {
-                GameEvents.onGUIApplicationLauncherReady.Remove(OnAppLauncherReady);
-                GameEvents.OnKSCFacilityUpgraded.Remove(OnKSCFacilityUpgraded);
-                GameEvents.onGUIRnDComplexSpawn.Remove(SwitchOff);
-                GameEvents.onGUIAstronautComplexSpawn.Remove(SwitchOff);
-                //if (appLauncherButton != null)
-                //	ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
-                //flag = true;
-                toolbarControl.OnDestroy();
-                Destroy(toolbarControl);
-                toolbarControl = null;
-            }
+            Log.Info("KEI_2.OnDestroy");
+            Instance = null;
         }
 
         private void OnKSCFacilityUpgraded(Upgradeables.UpgradeableFacility facility, int level)
         {
-            Log.Info("OnKSCFacilityUpgraded");
-            toolbarControl.SetFalse();
-            //appLauncherButton.SetFalse();
+            CheckMode();
         }
 
-        private void SwitchOff()
-        {
-            toolbarControl.SetFalse();
-            //appLauncherButton.SetFalse();
-        }
 
         public void OnGUI()
         {
             if (!isActive) return;
-            if (mainWindowVisible)
-            {
 
-                mainWindowRect = ClickThruBlocker.GUILayoutWindow(
-                    mainWindowId,
-                    mainWindowRect,
-                    RenderMainWindow,
-                    HomeBody.name + " Environmental Institute",
-                    GUILayout.ExpandWidth(true),
-                    GUILayout.ExpandHeight(true)
-                );
+            mainWindowRect = ClickThruBlocker.GUILayoutWindow(
+                mainWindowId,
+                mainWindowRect,
+                RenderMainWindow,
+                HomeBody.name + " Environmental Institute",
+                GUILayout.ExpandWidth(true),
+                GUILayout.ExpandHeight(true)
+            );
+        }
+
+        internal void CheckMode()
+        {
+            if (HighLogic.CurrentGame.Parameters.CustomParams<KEI_Settings>().liteMode)
+            {
+                UpdateScienceInfo();
+                availableExperiments.ForEach(x => x.done = true);
+                GainScience(availableExperiments.Select(x => x.experiment).ToList(), false);
             }
+            if (HighLogic.CurrentGame.Parameters.CustomParams<KEI_Settings>().mediumMode)
+            {
+                UpdateScienceInfo();
+                availableExperiments.ForEach(x => x.done = true);
+                GainCompletedScience(availableExperiments.Select(x => x.experiment).ToList());
+            }
+
         }
 
         private void GetKscBiomes()
@@ -226,6 +283,7 @@ namespace KEI
             unlockedExperiments.Clear();
             availableExperiments.Clear();
 
+
             List<AvailablePart> parts = PartLoader.Instance.loadedParts;
 
             // EVA Reports available from the beginning
@@ -241,8 +299,8 @@ namespace KEI
                 AvailablePart part in parts.Where
                 (
                     x => ResearchAndDevelopment.PartTechAvailable(x) &&
-                    !excludedManufacturers.Contains(x.manufacturer) &&
-                    ResearchAndDevelopment.PartModelPurchased(x)
+                        !excludedManufacturers.Contains(x.manufacturer) &&
+                        ResearchAndDevelopment.PartModelPurchased(x)
                 )
             )
             {
@@ -268,6 +326,56 @@ namespace KEI
             }
         }
 
+        private void GainCompletedScience(List<ScienceExperiment> experiments)
+        {
+            List<ScienceExperiment> completedExperiments = new List<ScienceExperiment>();
+            foreach (ScienceExperiment experiment in experiments.Where(x => x.IsAvailableWhile(ExperimentSituations.SrfLanded, HomeBody)))
+            {
+                foreach (string biome in kscBiomes)
+                {
+
+                    ScienceSubject subject = ResearchAndDevelopment.GetExperimentSubject(
+                        experiment,
+                        ExperimentSituations.SrfLanded,
+                        HomeBody,
+                        biome,
+                        null
+                    );
+
+                    if (subject.science > 0)
+                        completedExperiments.Add(experiment);
+                }
+            }
+
+            foreach (var experiment in completedExperiments)
+            {
+                float gain = 0.0f;
+                foreach (string biome in kscBiomes)
+                {
+                    ScienceSubject subject = ResearchAndDevelopment.GetExperimentSubject(
+                        experiment,
+                        ExperimentSituations.SrfLanded,
+                        HomeBody,
+                        biome,
+                        null
+                    );
+
+                    if (subject.science < subject.scienceCap)
+                    {
+                        // We want to get full science reward
+                        subject.subjectValue = 1.0f;
+                        gain += ResearchAndDevelopment.Instance.SubmitScienceData(
+                            subject.scienceCap * subject.dataScale,
+                            subject
+                        );
+
+                    }
+                }
+                if (gain >= 0.01f)
+                    Report(experiment, gain);
+            }
+        }
+
         private void GainScience(List<ScienceExperiment> experiments, bool analyze)
         {
             // Let's get science objects in all KSC biomes
@@ -278,7 +386,7 @@ namespace KEI
                     float gain = 0.0f;
                     try
                     {
-                        foreach (var biome in kscBiomes)
+                        foreach (string biome in kscBiomes)
                         {
                             try
                             {
@@ -289,6 +397,7 @@ namespace KEI
                                     biome,
                                     null
                                 );
+
                                 if (subject.science < subject.scienceCap)
                                 {
                                     if (analyze)
@@ -299,7 +408,6 @@ namespace KEI
                                     {
                                         // We want to get full science reward
                                         subject.subjectValue = 1.0f;
-
                                         gain += ResearchAndDevelopment.Instance.SubmitScienceData(
                                             subject.scienceCap * subject.dataScale,
                                             subject
@@ -377,40 +485,16 @@ namespace KEI
             MessageSystem.Instance.AddMessage(message);
         }
 
-        ToolbarControl toolbarControl;
-        internal const string MODID = "KEI_NS";
-        internal const string MODNAME = "Kerbin Environmental Institute";
         //GUI related functions
-        private void OnAppLauncherReady()
-        {
-            if (toolbarControl == null)
-            {
-                string abbr = HomeBody.name.Substring(0, 1) + "EI";
-                toolbarControl = gameObject.AddComponent<ToolbarControl>();
-                toolbarControl.AddToAllToolbars(ShowMainWindow, HideMainWindow,
-                            ApplicationLauncher.AppScenes.SPACECENTER,
-                            MODID,
-                            "KEIButton",
-                            "KEI/Textures/kei-icon_32",
-                            "KEI/Textures/kei-icon_24",
 
-                            abbr
-                    );
-            }
-        }
-
-        private void ShowMainWindow()
+        internal void UpdateScienceInfo()
         {
+            Log.Info("UpdateScienceInfo");
             GetKscBiomes();
             GetExperiments();
             GainScience(unlockedExperiments, true);
-            mainWindowVisible = true;
         }
 
-        private void HideMainWindow()
-        {
-            mainWindowVisible = false;
-        }
 
         private void RenderMainWindow(int windowId)
         {
@@ -447,12 +531,11 @@ namespace KEI
                 GUILayout.Label("Nothing to do here, go research something.");
             }
             if (GUILayout.Button("Close", GUILayout.Height(25)))
-                toolbarControl.SetFalse();
-
-            // appLauncherButton.SetFalse();
+                KEI.Instance.toolbarControl.SetFalse();
 
             GUILayout.EndVertical();
             GUI.DragWindow();
         }
     }
 }
+#endif
