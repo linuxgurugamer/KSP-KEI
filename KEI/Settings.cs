@@ -38,6 +38,12 @@ namespace KEI
             toolTip = "Window with science options is presented")]
         public bool fullMode = false;
 
+        [GameParameters.CustomFloatParameterUI("Science Gain Display Time (secs)", minValue = 5.0f, maxValue = 15, stepCount = 101, displayFormat = "F1", asPercentage = false,
+            toolTip = "T" +
+            "How long the message will be displayed on screen for each science gain (only for LITE and Medium modes)")]
+        public float displayTime = 10;
+
+
         [GameParameters.CustomParameterUI("Initted",
             toolTip = "Set to false to have the selection window show up at the Space Center")]
         public bool selectionMade = false;
@@ -49,7 +55,13 @@ namespace KEI
 
         public override bool Enabled(MemberInfo member, GameParameters parameters)
         {
-            return true;
+            if (!active && member.Name != "active")
+                return false;
+            if (member.Name != "displayTime" || liteMode || mediumMode)
+                return true;
+
+            return false;
+
         }
 
         bool initted = false;
@@ -82,7 +94,8 @@ namespace KEI
             oldMediumMode = mediumMode;
             oldFullMode = fullMode;
             initted = true;
-            return true;
+
+                return true;
         }
 
     }

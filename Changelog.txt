@@ -1,13 +1,13 @@
 ChangeLog
 
-TODO
-	Decide what to do about toolbar button and initialization, also window.  Possible window when first starting to select,
-	maybe use  windowMain = AddComponent<ARPWindow>();
-to avoid OnGUI from begin active when not in full mode, or to add when button is activated??
+1.2.10.5 
+	Added configurable time delay to message display when not in full mode
+	Improved settings panel to hide settings not needed for current setting
+	Fixed nullref in KEI.KEI.SwitchOff  when in medium mode
 
 1.2.10.4
 	Remove Log.cs, added SpaceTuxLibrary as new dependency
-	Moved some initializion from space center to main menu
+	Moved some initialization from SpaceCenter to Main Menu (not visible to user)
 	Added following modes, currently controlled in stock settings:
 		KEI Lite	Just give all local science
 		KEI Medium	Need to launch a vessel with an experiment, then all science for that experiment will be added to science

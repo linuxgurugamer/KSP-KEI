@@ -155,7 +155,8 @@ namespace KEI
 
         private void SwitchOff()
         {
-            toolbarControl.SetFalse();
+            if (toolbarControl != null)
+                toolbarControl.SetFalse();
         }
 
         public void OnGUI()
@@ -418,7 +419,7 @@ namespace KEI
             );
             MessageSystem.Instance.AddMessage(message);
             if (!HighLogic.CurrentGame.Parameters.CustomParams<KEI_Settings>().fullMode)
-                ScreenMessages.PostScreenMessage(experiment.experimentTitle + " science gain: " + gain.ToString("0.00"));
+                ScreenMessages.PostScreenMessage(experiment.experimentTitle + " science gain: " + gain.ToString("0.00"), HighLogic.CurrentGame.Parameters.CustomParams<KEI_Settings>().displayTime);
         }
 
         //GUI related functions
