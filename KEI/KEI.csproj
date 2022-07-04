@@ -43,11 +43,11 @@
     </Compile>
     <Compile Include="AvailableExperiment.cs" />
     <Compile Include="InstallChecker.cs" />
-    <Compile Include="KEI-working.cs" />
+    <Compile Include="KEI.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="ModeSelectWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="KEI.cs" />
+    <Compile Include="KEI-old.cs" />
     <Compile Include="RegisterToolbar.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>

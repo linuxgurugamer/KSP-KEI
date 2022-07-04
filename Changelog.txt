@@ -1,5 +1,9 @@
 ChangeLog
 
+1.2.10.6 (unreleased)
+	Renamed old KEI.cs (disabled) to KEO-old.cs
+	Renamed KEO-working.cs to KEI.cs
+
 1.2.10.5 
 	Added configurable time delay to message display when not in full mode
 	Improved settings panel to hide settings not needed for current setting
