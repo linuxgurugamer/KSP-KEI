@@ -1,8 +1,11 @@
 ChangeLog
 
-1.2.10.6 (unreleased)
+1.2.10.6
 	Renamed old KEI.cs (disabled) to KEO-old.cs
 	Renamed KEO-working.cs to KEI.cs
+	Updated version file to use github for new version info
+	Added code to update toolbar button
+
 
 1.2.10.5 
 	Added configurable time delay to message display when not in full mode
