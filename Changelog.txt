@@ -1,5 +1,9 @@
 ChangeLog
 
+1.2.10.7
+	Thanks to github user @TonkaCrash for this:
+		Update ExcludedManufacturers.cfg -  When the new experiment parts were added to MOAR Station Science they were given a new manufacturer, that bypassed the exclusion for getting science from the Station Science mod with KEI.  Adding the new manufacturer to the list.
+
 1.2.10.6
 	Renamed old KEI.cs (disabled) to KEO-old.cs
 	Renamed KEO-working.cs to KEI.cs
